@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/tealeg/xlsx"
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"os"
 	"path"
 	"strconv"
@@ -16,13 +16,14 @@ func main() {
 	excel();
 }
 
-func cmd() (string, string, int, int) {
+func cmd() (string, string, int, int, string) {
 	excel_dir := flag.String("e", "", "Required. 输入的Excel文件路径")
 	json_dir := flag.String("j", "", "指定输出的json文件路径");
 	header := flag.Int("h", 3, "表格中有几行是表头.");
 	key := flag.Int("k", 2, "key值在第几行");
+	sheet := flag.String("s", "data", "excel表的页签名称")
 	flag.Parse() //解析输入的参数
-	return *excel_dir, *json_dir, *header, *key;
+	return *excel_dir, *json_dir, *header, *key, *sheet;
 }
 
 /**
@@ -30,51 +31,48 @@ func cmd() (string, string, int, int) {
  */
 func excel() {
 	start := time.Now();
-	file, json_dir, header, key := cmd();
-	//xlsx, err := excelize.OpenFile(file);
-	xlFile, err := xlsx.OpenFile(file);
+	file, json_dir, header, key,sheet  := cmd();
+	xlsx, err := excelize.OpenFile(file);
+	//xlFile, err := xlsx.OpenFile(file);
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
+	rows := xlsx.GetRows(sheet);
 	var name [] string;
 	list := make([]map[string]interface{}, 0);
-	for _, sheet := range xlFile.Sheets {
-		//fmt.Printf("Sheet Name: %s\n", sheet.Name)
-		for i, row := range sheet.Rows {
-			hang := make(map[string]interface{}, 0);
-			for num, cell := range row.Cells {
-				text := cell.String();
-				//空列跳过
-				if i == key - 1 {
-					//fmt.Println(text);
-					name = append(name, text);
-				} else if i > header - 1 && name[num] != "" {
-					hang[name[num]] = text;
-					//判断并转为int
-					int, err := strconv.Atoi(text);
-					if err == nil {
-						hang[name[num]] = int;
-					}
-					//判断并转为float64
-					float, err := strconv.ParseFloat(text, 64);
-					if err == nil {
-						hang[name[num]] = float;
-					}
-					//fmt.Printf("%s\n", text)
+	for i, row := range rows {
+		hang := make(map[string]interface{}, 0);
+
+		for num, text := range row {
+			if i == key-1 {
+				//fmt.Println(text);
+				name = append(name, text);
+			} else if i > header-1 && name[num] != "" {
+
+				hang[name[num]] = text;
+				//判断并转为int
+				int, err := strconv.Atoi(text);
+				if err == nil {
+					hang[name[num]] = int;
+				}
+				//判断并转为float64
+				float, err := strconv.ParseFloat(text, 64);
+				if err == nil {
+					hang[name[num]] = float;
 				}
 
-			}
-
-			if i >= header {
-				list = append(list, hang);
+				//fmt.Printf("%s\n", text)
 			}
 
 		}
-		break;
-	}
 
+		if i >= header {
+			list = append(list, hang);
+		}
+
+	}
 
 	//格式化为json
 	data, err := json.Marshal(list);

@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/tealeg/xlsx"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -15,15 +16,13 @@ func main() {
 	excel();
 }
 
-func cmd() (string, string, int, int, string) {
+func cmd() (string, string, int, int) {
 	excel_dir := flag.String("e", "", "Required. 输入的Excel文件路径")
 	json_dir := flag.String("j", "", "指定输出的json文件路径");
 	header := flag.Int("h", 3, "表格中有几行是表头.");
 	key := flag.Int("k", 2, "key值在第几行");
-	sheet := flag.String("s", "data", "excel表的页签名称")
-
 	flag.Parse() //解析输入的参数
-	return *excel_dir, *json_dir, *header, *key, *sheet;
+	return *excel_dir, *json_dir, *header, *key;
 }
 
 /**
@@ -31,48 +30,63 @@ func cmd() (string, string, int, int, string) {
  */
 func excel() {
 	start := time.Now();
-	file, json_dir, header, key, sheet := cmd();
-	xlsx, err := excelize.OpenFile(file);
+	file, json_dir, header, key := cmd();
+	//xlsx, err := excelize.OpenFile(file);
+	xlFile, err := xlsx.OpenFile(file);
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	rows := xlsx.GetRows(sheet);
-	var lie [] string;
-	list := make(map[int]interface{}, 0);
-	for i, row := range rows {
-		hang := make(map[string]interface{}, 0);
-		//从第三行开始读取正文
-		if i >= header {
-			for num, colCell := range row {
-				if lie[num] != "" || lie[num] != "1" {
-					//heng = append(heng,colCell);
-					hang[lie[num]] = colCell;
+
+	var name [] string;
+	list := make([]map[string]interface{}, 0);
+	for _, sheet := range xlFile.Sheets {
+		//fmt.Printf("Sheet Name: %s\n", sheet.Name)
+		for i, row := range sheet.Rows {
+			hang := make(map[string]interface{}, 0);
+			for num, cell := range row.Cells {
+				text := cell.String();
+				//空列跳过
+				if i == key - 1 {
+					//fmt.Println(text);
+					name = append(name, text);
+				} else if i > header - 1 && name[num] != "" {
+					hang[name[num]] = text;
+					//判断并转为int
+					int, err := strconv.Atoi(text);
+					if err == nil {
+						hang[name[num]] = int;
+					}
+					//判断并转为float64
+					float, err := strconv.ParseFloat(text, 64);
+					if err == nil {
+						hang[name[num]] = float;
+					}
+					//fmt.Printf("%s\n", text)
 				}
-			}
-			//排除前面空余的行
-			list[i-header] = hang;
 
-			//fmt.Println(hang);
-		} else if i+1 == key { //获取第二行的key值
-			for _, colCell := range row {
-				lie = append(lie, colCell);
 			}
+
+			if i >= header {
+				list = append(list, hang);
+			}
+
 		}
-
+		break;
 	}
+
 
 	//格式化为json
 	data, err := json.Marshal(list);
+	//fmt.Println(string(data));
 	//data, err := json.MarshalIndent(list, "", "    ");
 
 	if err != nil {
 		fmt.Printf("json.marshal failed,err:", err)
 		return
 	}
-
 	//fmt.Println(string(data));
-	//fmt.Println(list);
+
 	if json_dir == "" {
 		fileSuffix := path.Ext(file)                         //获取文件后缀
 		filenameOnly := strings.TrimSuffix(file, fileSuffix) //获取文件名

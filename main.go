@@ -90,7 +90,7 @@ func excel() {
 	// 将数据格式化为JSON字符串
 	data, err := json.Marshal(list)
 	if err != nil {
-		fmt.Printf("json.marshal failed,err:", err)
+		fmt.Printf("json.marshal failed,err:%v", err)
 		return
 	}
 

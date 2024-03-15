@@ -1,4 +1,4 @@
-package excel2json
+package main
 
 import (
 	"encoding/json"
@@ -10,14 +10,6 @@ import (
 	"strings"
 	"time"
 )
-
-// excel 读取excel数据表
-//
-//	@returns 无返回值
-func excel() {
-	file, jsonDir, header, key, sheet := cmd() // 通过cmd函数获取必要的参数
-	Excel(file, jsonDir, header, key, sheet)   // 调用Excel函数进行数据处理和转换
-}
 
 // Excel 将Excel文件转换为JSON格式
 //

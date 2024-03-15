@@ -1,1 +1,1 @@
-package excel2json
+package main

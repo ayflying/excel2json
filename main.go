@@ -1,4 +1,4 @@
-package excel2json
+package main
 
 import (
 	"flag"
@@ -6,6 +6,14 @@ import (
 
 func main() {
 	excel()
+}
+
+// excel 读取excel数据表
+//
+//	@returns 无返回值
+func excel() {
+	file, jsonDir, header, key, sheet := cmd() // 通过cmd函数获取必要的参数
+	Excel(file, jsonDir, header, key, sheet)   // 调用Excel函数进行数据处理和转换
 }
 
 // cmd函数用于解析命令行传入的参数，并返回相关配置

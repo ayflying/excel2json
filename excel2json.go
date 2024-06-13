@@ -66,7 +66,7 @@ func Excel(file string, jsonDir string, header int, key int, sheet string) {
 	}
 
 	// 将数据列表转换为JSON字符串
-	data, err := json.Marshal(list)
+	data, err := json.MarshalIndent(list, "", "  ")
 	if err != nil {
 		// 转换失败，打印错误信息并返回
 		fmt.Printf("json.marshal failed,err:%v", err)

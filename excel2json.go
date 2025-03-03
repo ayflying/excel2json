@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
+	"math"
 	"os"
 	"path"
 	"strconv"
@@ -48,15 +49,17 @@ func Excel(file string, jsonDir string, header int, key int, sheet string) {
 			} else if i > header-1 && name[num] != "" {
 				hang[name[num]] = text
 				// 尝试将字符串转换为int类型
-				int, err := strconv.Atoi(text)
-				if err == nil {
-					hang[name[num]] = int
+				intData, err2 := strconv.Atoi(text)
+				if err2 == nil {
+					hang[name[num]] = intData
 				}
+
 				// 尝试将字符串转换为float64类型
-				float, err := strconv.ParseFloat(text, 64)
-				if err == nil {
-					hang[name[num]] = float
+				floatData, err2 := strconv.ParseFloat(text, 64)
+				if err2 == nil {
+					hang[name[num]] = sanitizeValue(floatData)
 				}
+
 			}
 		}
 
@@ -69,7 +72,7 @@ func Excel(file string, jsonDir string, header int, key int, sheet string) {
 	data, err := json.MarshalIndent(list, "", "\t")
 	if err != nil {
 		// 转换失败，打印错误信息并返回
-		fmt.Printf("json.marshal failed,err:%v", err)
+		fmt.Printf("json.marshal failed,err:%v,内容如下:%s", err, data)
 		return
 	}
 
@@ -97,4 +100,16 @@ func write(file string, data string) {
 	}
 	obj.WriteString(data)
 	obj.Close()
+}
+
+// 解析json不支持的正无穷大
+func sanitizeValue(v float64) interface{} {
+	if math.IsInf(v, 1) {
+		return "Infinity"
+	} else if math.IsInf(v, -1) {
+		return "-Infinity"
+	} else if math.IsNaN(v) {
+		return "NaN"
+	}
+	return v
 }

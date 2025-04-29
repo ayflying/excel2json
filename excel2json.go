@@ -3,11 +3,12 @@ package excel2json
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/360EntSecGroup-Skylar/excelize"
+	"strconv"
+
+	"github.com/xuri/excelize/v2"
 	"math"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -35,19 +36,37 @@ func Excel(file string, jsonDir string, header int, key int, sheet string) {
 	}
 
 	// 获取指定工作表的所有行
-	rows := xlsx.GetRows(sheet)
+	rows, err := xlsx.GetRows(sheet)
 	var name []string                         // 用于存储列名
 	list := make([]map[string]interface{}, 0) // 用于存储转换后的数据
 
 	// 遍历所有行，根据列名和数据类型，构建数据列表
 	for i, row := range rows {
-		hang := make(map[string]interface{}, 0)
+		hang := make(map[string]interface{})
 
 		for num, text := range row {
 			if i == key-1 {
 				name = append(name, text)
-			} else if i > header-1 && name[num] != "" {
+			} else if i > header-1 && len(name) > num {
 				hang[name[num]] = text
+
+				//rv := reflect.ValueOf(text)
+				//typ := rv.Kind()
+				//switch text.(type) {
+				//case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				//	//hang[name[num]], err = strconv.Atoi(text)
+				//	hang[name[num]] = rv.Int()
+				//case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				//	//转换为uint
+				//	//hang[name[num]], err = strconv.ParseUint(text, 10, 64)
+				//	hang[name[num]] = rv.Uint()
+				//case reflect.Float32, reflect.Float64:
+				//	//hang[name[num]], err = strconv.ParseFloat(text, 64)
+				//	hang[name[num]] = rv.Float()
+				//default:
+				//	hang[name[num]] = text
+				//}
+
 				// 尝试将字符串转换为int类型
 				intData, err2 := strconv.Atoi(text)
 				if err2 == nil {

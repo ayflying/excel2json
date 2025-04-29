@@ -1,7 +1,19 @@
 module github.com/ayflying/excel2json
 
-go 1.18
+go 1.23.0
 
-require github.com/360EntSecGroup-Skylar/excelize v1.4.1
+toolchain go1.24.1
 
-require github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+require github.com/xuri/excelize/v2 v2.9.0
+
+require (
+	github.com/360EntSecGroup-Skylar/excelize v1.4.1 // indirect
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+	github.com/richardlehane/mscfb v1.0.4 // indirect
+	github.com/richardlehane/msoleps v1.0.4 // indirect
+	github.com/xuri/efp v0.0.0-20250227110027-3491fafc2b79 // indirect
+	github.com/xuri/nfp v0.0.0-20250226145837-86d5fc24b2ba // indirect
+	golang.org/x/crypto v0.28.0 // indirect
+	golang.org/x/net v0.30.0 // indirect
+	golang.org/x/text v0.24.0 // indirect
+)

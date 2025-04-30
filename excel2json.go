@@ -45,19 +45,21 @@ func Excel(file string, jsonDir string, header int, key int, sheet string) {
 		hang := make(map[string]interface{})
 
 		for num, text := range row {
+			//去掉字符串前后空格
+			text = strings.TrimSpace(text)
+
 			if i == key-1 {
+				// 处理表头行，提取列名
 				name = append(name, text)
 			} else if i > header-1 && len(name) > num {
-				//去掉字符串前后空格
-				text = strings.TrimSpace(text)
-				hang[name[num]] = text
-
-				// 尝试将字符串转换为bool类型
-				boolData, err2 := strconv.ParseBool(text)
-				if err2 == nil {
-					hang[name[num]] = boolData
+				if text == "" {
 					continue
 				}
+				if name[num] == "" {
+					continue
+				}
+
+				hang[name[num]] = text
 
 				// 尝试将字符串转换为float64类型
 				floatData, err2 := strconv.ParseFloat(text, 64)
@@ -70,6 +72,13 @@ func Excel(file string, jsonDir string, header int, key int, sheet string) {
 				intData, err2 := strconv.Atoi(text)
 				if err2 == nil {
 					hang[name[num]] = intData
+					continue
+				}
+
+				// 尝试将字符串转换为bool类型
+				boolData, err2 := strconv.ParseBool(text)
+				if err2 == nil {
+					hang[name[num]] = boolData
 					continue
 				}
 

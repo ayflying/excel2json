@@ -52,9 +52,11 @@ func Excel(file string, jsonDir string, header int, key int, sheet string) {
 				// 处理表头行，提取列名
 				name = append(name, text)
 			} else if i > header-1 && len(name) > num {
+				//跳过空的内容
 				if text == "" {
 					continue
 				}
+				//跳过空的头部
 				if name[num] == "" {
 					continue
 				}

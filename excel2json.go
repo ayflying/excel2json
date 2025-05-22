@@ -21,19 +21,28 @@ import (
 // @param header int - 表头所在的行索引（从0开始）。
 // @param key int - 包含列名的关键行索引（从0开始）。
 // @param sheet string - Excel工作表的名称。
-func Excel(file string, jsonDir string, header int, key int, sheet string) {
+func Excel(file string, jsonDir string, header int, key int, _sheet ...string) {
+	var sheet = ""
+
 	// 记录函数开始时间
 	start := time.Now()
-	// 打印函数参数，用于调试
-	fmt.Println(file, jsonDir, header, key, sheet)
 
 	// 使用excelize库打开Excel文件
 	xlsx, err := excelize.OpenFile(file)
 	if err != nil {
 		// 打印错误信息并返回
-		fmt.Println(err, file, jsonDir, header, key, sheet)
+		fmt.Println(err, file, jsonDir, header, key, _sheet)
 		return
 	}
+
+	if len(_sheet) == 0 {
+		// 获取所有工作表名称
+		sheetNames := xlsx.GetSheetList()
+		sheet = sheetNames[0]
+	}
+
+	// 打印函数参数，用于调试
+	fmt.Println(file, jsonDir, header, key, sheet)
 
 	// 获取指定工作表的所有行
 	rows, err := xlsx.GetRows(sheet)

@@ -2,6 +2,11 @@
 ### go语言的高性能，而且支持跨平台
 go语言版本的excel2json，可以把excel表转换成json文件
 
+安装方法：
+```bash
+go get github.com/ayflying/excel2json
+```
+
 使用方法：
 在命令行中使用，输入
 ```bash

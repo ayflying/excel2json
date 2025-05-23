@@ -39,6 +39,8 @@ func Excel(file string, jsonDir string, header int, key int, _sheet ...string) {
 		// 获取所有工作表名称
 		sheetNames := xlsx.GetSheetList()
 		sheet = sheetNames[0]
+	} else {
+		sheet = _sheet[0]
 	}
 
 	// 打印函数参数，用于调试
